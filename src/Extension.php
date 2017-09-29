@@ -368,9 +368,9 @@ class Extension extends CodeceptionExtension
     {
         if (!$this->plan) {
             // TODO: procedural generation of test plan names (template?  provider class?)
-            $plan = $this->getConnection()->execute('add_plan/' . $$this->project->id, 'POST', [
-                    'name' => date('Y-m-d H:i:s'),
-                ]);
+            $plan = $this->getConnection()->execute('add_plan/' . $this->project, 'POST', [
+                'name' => date('Y-m-d H:i:s'),
+            ]);
 
             $this->plan = $plan->id;
         }
