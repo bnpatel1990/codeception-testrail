@@ -108,6 +108,7 @@ class Extension extends CodeceptionExtension
         }
 
         $conn = $this->getConnection();
+        $plan = $this->getPlan();
 
         foreach ($recorded as $suiteId => $results) {
             $caseIds = array_reduce(
@@ -122,13 +123,13 @@ class Extension extends CodeceptionExtension
             $suiteDetails = $conn->execute('/get_suite/'. $suiteId);
 
             $entry = $conn->execute(
-                '/add_plan_entry/'. $this->getPlan(),
+                '/add_plan_entry/'. $plan,
                 'POST',
                 [
-                'suite_id' => $suiteId,
-                'name' => $event->getSuite()->getName(). ' : '. $suiteDetails->name,
-                'case_ids' => $caseIds,
-                'include_all' => false,
+                    'suite_id' => $suiteId,
+                    'name' => $event->getSuite()->getName(). ' : '. $suiteDetails->name,
+                    'case_ids' => $caseIds,
+                    'include_all' => false,
                 ]
             );
 
@@ -144,7 +145,7 @@ class Extension extends CodeceptionExtension
                 '/add_results_for_cases/'. $run->id,
                 'POST',
                 [
-                'results' => $results,
+                    'results' => $results,
                 ]
             );
         }
@@ -161,7 +162,7 @@ class Extension extends CodeceptionExtension
             $case,
             $this->statuses[$this::STATUS_SUCCESS],
             [
-            'elapsed' => $event->getTime(),
+                'elapsed' => $event->getTime(),
             ]
         );
     }
@@ -177,7 +178,7 @@ class Extension extends CodeceptionExtension
             $case,
             $this->statuses[$this::STATUS_SKIPPED],
             [
-            'elapsed' => $event->getTime(),
+                'elapsed' => $event->getTime(),
             ]
         );
     }
@@ -193,7 +194,7 @@ class Extension extends CodeceptionExtension
             $case,
             $this->statuses[$this::STATUS_INCOMPLETE],
             [
-            'elapsed' => $event->getTime(),
+                'elapsed' => $event->getTime(),
             ]
         );
     }
@@ -209,7 +210,7 @@ class Extension extends CodeceptionExtension
             $case,
             $this->statuses[$this::STATUS_FAILED],
             [
-            'elapsed' => $event->getTime(),
+                'elapsed' => $event->getTime(),
             ]
         );
     }
@@ -225,7 +226,7 @@ class Extension extends CodeceptionExtension
             $case,
             $this->statuses[$this::STATUS_ERROR],
             [
-            'elapsed' => $event->getTime(),
+                'elapsed' => $event->getTime(),
             ]
         );
     }
