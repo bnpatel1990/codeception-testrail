@@ -8,6 +8,7 @@ use Codeception\Events;
 use Codeception\Exception\ExtensionException;
 use Codeception\Extension as CodeceptionExtension;
 use Codeception\Test\Cest;
+use Codeception\Test\Gherkin;
 use Codeception\Test\Test;
 use Codeception\TestInterface;
 use Codeception\Util\Annotation;
@@ -163,10 +164,6 @@ class Extension extends CodeceptionExtension
     {
         $test = $event->getTest();
 
-        if (!$test instanceof Cest) {
-            return;
-        }
-
         $suite = $this->getSuiteForTest($test);
         $case = $this->getCaseForTest($test);
         $this->handleResult(
@@ -182,10 +179,6 @@ class Extension extends CodeceptionExtension
     public function skipped(TestEvent $event)
     {
         $test = $event->getTest();
-
-        if (!$test instanceof Cest) {
-            return;
-        }
 
         $suite = $this->getSuiteForTest($test);
         $case = $this->getCaseForTest($test);
@@ -203,10 +196,6 @@ class Extension extends CodeceptionExtension
     {
         $test = $event->getTest();
 
-        if (!$test instanceof Cest) {
-            return;
-        }
-
         $suite = $this->getSuiteForTest($test);
         $case = $this->getCaseForTest($test);
         $this->handleResult(
@@ -223,10 +212,6 @@ class Extension extends CodeceptionExtension
     {
         $test = $event->getTest();
 
-        if (!$test instanceof Cest) {
-            return;
-        }
-
         $suite = $this->getSuiteForTest($test);
         $case = $this->getCaseForTest($test);
         $this->handleResult(
@@ -242,10 +227,6 @@ class Extension extends CodeceptionExtension
     public function errored(FailEvent $event)
     {
         $test = $event->getTest();
-
-        if (!$test instanceof Cest) {
-            return;
-        }
 
         $suite = $this->getSuiteForTest($test);
         $case = $this->getCaseForTest($test);
@@ -329,10 +310,20 @@ class Extension extends CodeceptionExtension
      */
     public function getSuiteForTest(TestInterface $test)
     {
-        if (!$test instanceof Cest) {
-            return null;
+        $suite = null;
+
+        if ($test instanceof Cest) {
+            $suite = $this->getSuiteForCest($test);
+        }
+        else if ($test instanceof Gherkin) {
+            $suite = $this->getDataForGherkin($test, $this::ANNOTATION_SUITE);
         }
 
+        return $suite;
+    }
+
+    protected function getSuiteForCest(Cest $test)
+    {
         $suite = Annotation::forMethod($test->getTestClass(), $test->getTestMethod())->fetch($this::ANNOTATION_SUITE);
         if (!$suite) {
             $suite = Annotation::forClass($test->getTestClass())->fetch($this::ANNOTATION_SUITE);
@@ -353,11 +344,34 @@ class Extension extends CodeceptionExtension
      */
     public function getCaseForTest(TestInterface $test)
     {
-        if (!$test instanceof Cest) {
-            return null;
+        $case = null;
+
+        if ($test instanceof Cest) {
+            $case = $this->getCaseForCest($test);
+        }
+        else if ($test instanceof Gherkin) {
+            $case = $this->getDataForGherkin($test, $this::ANNOTATION_CASE);
         }
 
+        return $case;
+    }
+
+    protected function getCaseForCest(Cest $test)
+    {
         return Annotation::forMethod($test->getTestClass(), $test->getTestMethod())->fetch($this::ANNOTATION_CASE);
+    }
+
+    protected function getDataForGherkin(Gherkin $test, $pattern)
+    {
+        $groups = $test->getMetadata()->getGroups();
+        foreach($groups as $group)
+        {
+            if (preg_match("/" . $pattern . "-(?<id>\d*)/", $group, $matches)) {
+                return $matches['id'];
+            }
+        }
+
+        return null;
     }
 
     /**
