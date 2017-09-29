@@ -326,14 +326,14 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
         $target = $this->getExtension(['formatTime','getCaseForTest','getSuiteForTest']);
 
         $target
-            ->expects($this->never())
-            ->method('formatTime');
+            ->method('formatTime')
+            ->willReturn(null);
         $target
-            ->expects($this->never())
-            ->method('getCaseForTest');
+            ->method('getCaseForTest')
+            ->willReturn(null);
         $target
-            ->expects($this->never())
-            ->method('getSuiteForTest');
+            ->method('getSuiteForTest')
+            ->willReturn(null);
         /** @var Extension $target */
 
         $target->{$action}($event);
