@@ -90,17 +90,7 @@ class Extension extends CodeceptionExtension
                 );
             }
 
-            // TODO: procedural generation of test plan names (template?  provider class?)
-            $plan = $conn->execute(
-                'add_plan/'. $project->id,
-                'POST',
-                [
-                'name' => date('Y-m-d H:i:s'),
-                ]
-            );
-
             $this->project = $project->id;
-            $this->plan = $plan->id;
         }
 
         // merge the statuses from the config over the default ones
@@ -132,7 +122,7 @@ class Extension extends CodeceptionExtension
             $suiteDetails = $conn->execute('/get_suite/'. $suiteId);
 
             $entry = $conn->execute(
-                '/add_plan_entry/'. $this->plan,
+                '/add_plan_entry/'. $this->getPlan(),
                 'POST',
                 [
                 'suite_id' => $suiteId,
@@ -372,6 +362,20 @@ class Extension extends CodeceptionExtension
         }
 
         return null;
+    }
+
+    protected function getPlan()
+    {
+        if (!$this->plan) {
+            // TODO: procedural generation of test plan names (template?  provider class?)
+            $plan = $this->getConnection()->execute('add_plan/' . $$this->project->id, 'POST', [
+                    'name' => date('Y-m-d H:i:s'),
+                ]);
+
+            $this->plan = $plan->id;
+        }
+
+        return $this->plan;
     }
 
     /**
