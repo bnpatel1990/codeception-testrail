@@ -148,6 +148,12 @@ class Extension extends CodeceptionExtension
                 }
             );
 
+            foreach ($results as &$result) {
+                if($result['elapsed'] === '0s') {
+                    $result['elapsed'] = '1s';
+                }
+            }
+            
             $run = $entry->runs[0];
             $conn->execute(
                 '/add_results_for_cases/'. $run->id,
